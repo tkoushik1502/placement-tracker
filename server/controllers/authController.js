@@ -2,10 +2,27 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+// =========================
 // Register User
+// =========================
+
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const {
+      name,
+      email,
+      password,
+      graduationYear,
+    } = req.body;
+
+    // Validate graduation year
+    const year = Number(graduationYear);
+
+    if (!year || year < 2000 || year > 2100) {
+      return res.status(400).json({
+        message: "Please enter a valid graduation year",
+      });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -25,26 +42,32 @@ const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      graduationYear: year,
     });
 
     res.status(201).json({
-        message: "User Registered Successfully",
-        user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        },
+      message: "User Registered Successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        graduationYear: user.graduationYear,
+      },
     });
-
   } catch (error) {
+    console.error("Registration Error:", error);
+
     res.status(500).json({
       message: error.message,
     });
   }
 };
 
+// =========================
 // Login User
+// =========================
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -71,29 +94,31 @@ const login = async (req, res) => {
     }
 
     // Generate JWT Token
-  const token = jwt.sign(
-  {
-    id: user._id,
-    role: user.role,
-  },
-  process.env.JWT_SECRET,
-  {
-    expiresIn: "7d",
-  }
-);
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     res.status(200).json({
-        message: "Login Successful",
-        token,
-        user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        },
+      message: "Login Successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        graduationYear: user.graduationYear,
+      },
     });
-
   } catch (error) {
+    console.error("Login Error:", error);
+
     res.status(500).json({
       message: error.message,
     });

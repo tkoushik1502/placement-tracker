@@ -11,6 +11,7 @@ function Register() {
     email: "",
     password: "",
     confirmPassword: "",
+    graduationYear: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,17 @@ function Register() {
       return;
     }
 
+    const graduationYear = Number(formData.graduationYear);
+
+    if (
+      !graduationYear ||
+      graduationYear < 2000 ||
+      graduationYear > 2100
+    ) {
+      toast.error("Please enter a valid graduation year");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -37,6 +49,7 @@ function Register() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        graduationYear: graduationYear,
       });
 
       toast.success("Registration Successful");
@@ -44,7 +57,6 @@ function Register() {
       setTimeout(() => {
         navigate("/");
       }, 1200);
-
     } catch (err) {
       toast.error(
         err.response?.data?.message || "Registration Failed"
@@ -59,16 +71,15 @@ function Register() {
       <Toaster position="top-right" />
 
       <div className="min-h-screen flex items-center justify-center bg-slate-100">
-
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md"
         >
-
           <h1 className="text-3xl font-bold text-center mb-8">
             Placement Tracker
           </h1>
 
+          {/* Name */}
           <input
             type="text"
             name="name"
@@ -79,6 +90,7 @@ function Register() {
             required
           />
 
+          {/* Email */}
           <input
             type="email"
             name="email"
@@ -89,6 +101,7 @@ function Register() {
             required
           />
 
+          {/* Password */}
           <input
             type="password"
             name="password"
@@ -99,24 +112,40 @@ function Register() {
             required
           />
 
+          {/* Confirm Password */}
           <input
             type="password"
             name="confirmPassword"
             placeholder="Confirm Password"
             value={formData.confirmPassword}
             onChange={handleChange}
+            className="w-full border p-3 rounded mb-4"
+            required
+          />
+
+          {/* Graduation Year */}
+          <input
+            type="number"
+            name="graduationYear"
+            placeholder="Graduation Year"
+            value={formData.graduationYear}
+            onChange={handleChange}
+            min="2000"
+            max="2100"
             className="w-full border p-3 rounded mb-6"
             required
           />
 
+          {/* Register Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded transition"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white p-3 rounded transition"
           >
             {loading ? "Registering..." : "Register"}
           </button>
 
+          {/* Login */}
           <p className="text-center mt-5">
             Already have an account?{" "}
             <Link
@@ -126,9 +155,7 @@ function Register() {
               Login
             </Link>
           </p>
-
         </form>
-
       </div>
     </>
   );
